@@ -200,21 +200,69 @@
             <!-- ========================================== -->
             <main id="swipeArea" class="px-4 pt-4">
 
-                <!-- TAB 1: اضلاع (Segments & Curves) -->
+                <!-- TAB 1: محاسبه (Inputs & Smart Radius Deduction Settings) -->
                 <section id="page-segments" class="app-page active space-y-3">
-                    <!-- Quick Summary Bar -->
-                    <div class="liquid-cyan rounded-2xl p-3 flex items-center justify-between">
-                        <div>
-                            <span class="text-[11px] text-cyan-100 block">طول کامل ورق صاف:</span>
-                            <div class="flex items-baseline gap-1.5" dir="ltr">
-                                <span id="tab1TotalCm" class="text-2xl font-black font-mono text-white">50.70</span>
-                                <span class="text-xs font-bold text-cyan-300">cm</span>
-                                <span id="tab1TotalMm" class="text-xs font-mono text-amber-300 ml-1">(507.0 mm)</span>
+                    <!-- Quick Summary Bar & Presets -->
+                    <div class="liquid-cyan rounded-2xl p-3 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] text-cyan-100 block">طول کامل ورق صاف:</span>
+                                <div class="flex items-baseline gap-1.5" dir="ltr">
+                                    <span id="tab1TotalCm" class="text-2xl font-black font-mono text-white">50.70</span>
+                                    <span class="text-xs font-bold text-cyan-300">cm</span>
+                                    <span id="tab1TotalMm" class="text-xs font-mono text-amber-300 ml-1">(507.0 mm)</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <button onclick="loadNetPreset()" class="px-2.5 py-1 rounded-xl liquid-btn text-[10px] font-bold text-amber-300 flex items-center gap-1">
+                                    <i class="fa-solid fa-check-double text-[9px]"></i>
+                                    <span>مثال خالص (۲، ۵، ۱۴، ۳)</span>
+                                </button>
+                                <button onclick="loadOuterPreset()" class="px-2.5 py-1 rounded-xl liquid-btn text-[10px] font-bold text-cyan-200 flex items-center gap-1">
+                                    <i class="fa-solid fa-crop-simple text-[9px]"></i>
+                                    <span>مثال کلی با کسر R (۲، ۲۲، ۳۱، ۳)</span>
+                                </button>
                             </div>
                         </div>
-                        <button onclick="resetDefaultColumn()" class="px-3 py-1.5 rounded-xl liquid-btn text-[11px] font-bold text-amber-300">
-                            مثال پیش‌فرض
-                        </button>
+                    </div>
+
+                    <!-- Smart Radius Deduction Settings Card -->
+                    <div class="liquid-glass rounded-2xl p-3 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-wand-magic-sparkles text-cyan-300"></i>
+                                <span>تنظیم کسر اتوماتیک شعاع (R) از اضلاع</span>
+                            </span>
+                            <span id="deductStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80">بدون کسر</span>
+                        </div>
+
+                        <!-- 3-Mode Segmented Control -->
+                        <div class="bg-slate-950/65 p-1 rounded-xl border border-white/15 grid grid-cols-3 gap-1 text-[11px] font-extrabold">
+                            <button onclick="setDeductMode('none')" id="deductBtn-none" class="py-1.5 rounded-lg bg-cyan-400 text-slate-950 font-black transition">
+                                ۱. بدون کسر
+                            </button>
+                            <button onclick="setDeductMode('both')" id="deductBtn-both" class="py-1.5 rounded-lg text-white/65 transition">
+                                ۲. کسر از دو طرف
+                            </button>
+                            <button onclick="setDeductMode('custom')" id="deductBtn-custom" class="py-1.5 rounded-lg text-white/65 transition">
+                                ۳. سفارشی
+                            </button>
+                        </div>
+
+                        <p id="deductModeDesc" class="text-[10px] text-white/65 leading-relaxed">
+                            ابعاد وارد شده همان طول صافِ خالص هستند و شعاع کرو از آن‌ها کم نمی‌شود.
+                        </p>
+
+                        <!-- Smart Warning Banner when Side < Radius -->
+                        <div id="deductWarningBox" class="hidden rounded-xl bg-amber-500/15 border border-amber-400/40 p-2.5 text-[11px] text-amber-200 space-y-1.5">
+                            <div class="flex items-start gap-1.5">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5"></i>
+                                <span id="deductWarningText" class="leading-relaxed"></span>
+                            </div>
+                            <button onclick="loadOuterPreset()" class="w-full py-1.5 rounded-lg bg-amber-400/20 border border-amber-300/40 text-amber-200 font-bold text-[10px] hover:bg-amber-400/30 transition">
+                                تست خودکار با ابعاد بیرونی (۲، ۲۲، ۳۱، ۳) ← پس از کسر ۱۷ می‌شود (۲، ۵، ۱۴، ۳)
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Segments & Corners List -->
@@ -338,17 +386,17 @@
                 <button onclick="switchTab('segments')" id="tabBtn-segments"
                     class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-cyan-300 bg-white/15 font-extrabold transition">
                     <i class="fa-solid fa-sliders text-sm"></i>
-                    <span class="text-[10px]">اضلاع</span>
+                    <span class="text-[10px]">محاسبه</span>
                 </button>
                 <button onclick="switchTab('sheet')" id="tabBtn-sheet"
                     class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition">
                     <i class="fa-solid fa-ruler-horizontal text-sm"></i>
-                    <span class="text-[10px]">نقشه متر</span>
+                    <span class="text-[10px]">مترکشی</span>
                 </button>
                 <button onclick="switchTab('preview')" id="tabBtn-preview"
                     class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition">
                     <i class="fa-solid fa-compass-drafting text-sm"></i>
-                    <span class="text-[10px]">نمای مقطع</span>
+                    <span class="text-[10px]">مقطع</span>
                 </button>
                 <button onclick="switchTab('kerf')" id="tabBtn-kerf"
                     class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition">
@@ -366,11 +414,12 @@
         let state = {
             activeTab: 'segments',
             useExactPi: true,
+            deductMode: 'none', // 'none' | 'both' | 'custom'
             segments: [2, 5, 14, 3],
             corners: [
-                { isCurved: false, radius: 10, angle: 90, dir: 'left' },
-                { isCurved: true,  radius: 17, angle: 90, dir: 'right' },
-                { isCurved: false, radius: 10, angle: 90, dir: 'left' }
+                { isCurved: false, radius: 10, angle: 90, dir: 'left', deductBefore: true, deductAfter: true, customDeduct: null },
+                { isCurved: true,  radius: 17, angle: 90, dir: 'right', deductBefore: true, deductAfter: true, customDeduct: null },
+                { isCurved: false, radius: 10, angle: 90, dir: 'left', deductBefore: true, deductAfter: true, customDeduct: null }
             ]
         };
 
@@ -401,16 +450,60 @@
             renderAll();
         }
 
-        function resetDefaultColumn() {
-            state.segments = [2, 5, 14, 3];
-            state.corners = [
-                { isCurved: false, radius: 10, angle: 90, dir: 'left' },
-                { isCurved: true,  radius: 17, angle: 90, dir: 'right' },
-                { isCurved: false, radius: 10, angle: 90, dir: 'left' }
-            ];
+        function setDeductMode(mode) {
+            state.deductMode = mode;
+            ['none', 'both', 'custom'].forEach(m => {
+                const btn = document.getElementById(`deductBtn-${m}`);
+                if (m === mode) {
+                    btn.className = 'py-1.5 rounded-lg bg-cyan-400 text-slate-950 font-black transition';
+                } else {
+                    btn.className = 'py-1.5 rounded-lg text-white/65 transition';
+                }
+            });
+
+            const badge = document.getElementById('deductStatusBadge');
+            const desc = document.getElementById('deductModeDesc');
+
+            if (mode === 'none') {
+                badge.textContent = 'بدون کسر';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/80';
+                desc.textContent = 'ابعاد وارد شده همان طول صافِ خالص هستند و شعاع کرو از آن‌ها کم نمی‌شود.';
+            } else if (mode === 'both') {
+                badge.textContent = 'کسر خودکار R از دو طرف';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-400/20 text-cyan-300 border border-cyan-400/30';
+                desc.textContent = 'به اندازه شعاع کرو (یا تانژانت زاویه) به‌طور خودکار از ضلع قبل و بعد از هر کرو کم می‌شود.';
+            } else {
+                badge.textContent = 'کسر سفارشی';
+                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30';
+                desc.textContent = 'در کادر هر کرو مشخص کنید شعاع از ضلع قبل، ضلع بعد یا هر دو کم شود.';
+            }
+
             renderChainInputs();
             renderAll();
-            showToast('مثال ستون (۲، ۵، کرو ۱۷، ۱۴، ۳) بارگذاری شد');
+        }
+
+        // Preset 1: Net flat lengths (2, 5, 14, 3) with no deduction
+        function loadNetPreset() {
+            state.segments = [2, 5, 14, 3];
+            state.corners = [
+                { isCurved: false, radius: 10, angle: 90, dir: 'left', deductBefore: true, deductAfter: true, customDeduct: null },
+                { isCurved: true,  radius: 17, angle: 90, dir: 'right', deductBefore: true, deductAfter: true, customDeduct: null },
+                { isCurved: false, radius: 10, angle: 90, dir: 'left', deductBefore: true, deductAfter: true, customDeduct: null }
+            ];
+            setDeductMode('none');
+            showToast('ابعاد خالص (۲، ۵، ۱۴، ۳) بدون کسر شعاع بارگذاری شد');
+        }
+
+        // Preset 2: Full outer dimensions (2, 22, 31, 3) where subtracting R=17 leaves (2, 5, 14, 3)
+        function loadOuterPreset() {
+            state.segments = [2, 22, 31, 3];
+            state.corners = [
+                { isCurved: false, radius: 10, angle: 90, dir: 'left', deductBefore: true, deductAfter: true, customDeduct: null },
+                { isCurved: true,  radius: 17, angle: 90, dir: 'right', deductBefore: true, deductAfter: true, customDeduct: null },
+                { isCurved: false, radius: 10, angle: 90, dir: 'left', deductBefore: true, deductAfter: true, customDeduct: null }
+            ];
+            setDeductMode('both');
+            showToast('ابعاد کلی (۲، ۲۲، ۳۱، ۳) با کسر اتوماتیک شعاع ۱۷ بارگذاری شد');
         }
 
         function addSegment() {
@@ -419,7 +512,10 @@
                 isCurved: false,
                 radius: 17,
                 angle: 90,
-                dir: state.corners.length % 2 === 0 ? 'left' : 'right'
+                dir: state.corners.length % 2 === 0 ? 'left' : 'right',
+                deductBefore: true,
+                deductAfter: true,
+                customDeduct: null
             });
             renderChainInputs();
             renderAll();
@@ -450,7 +546,19 @@
         }
 
         function updateAngle(cIdx, val) {
-            state.corners[cIdx].angle = Math.min(360, Math.max(1, parseFloat(val) || 90));
+            state.corners[cIdx].angle = Math.min(179, Math.max(1, parseFloat(val) || 90));
+            renderAll();
+        }
+
+        function toggleCornerDeductSide(cIdx, sideKey) {
+            state.corners[cIdx][sideKey] = !state.corners[cIdx][sideKey];
+            renderChainInputs();
+            renderAll();
+        }
+
+        function updateCustomDeductVal(cIdx, val) {
+            const parsed = parseFloat(val);
+            state.corners[cIdx].customDeduct = isNaN(parsed) ? null : Math.max(0, parsed);
             renderAll();
         }
 
@@ -459,24 +567,72 @@
             renderAll();
         }
 
+        // Calculate geometric deduction for a corner (for 90 deg it equals R)
+        function getCornerDeductAmount(c) {
+            if (!c.isCurved || c.radius <= 0) return 0;
+            if (state.deductMode === 'custom' && c.customDeduct !== null) {
+                return c.customDeduct;
+            }
+            if (Math.abs(c.angle - 90) < 0.01) {
+                return c.radius;
+            }
+            const halfRad = ((c.angle / 2) * Math.PI) / 180;
+            return +(c.radius * Math.tan(halfRad)).toFixed(2);
+        }
+
         function calculate() {
             const piVal = state.useExactPi ? Math.PI : 3.14;
+            const altPi = state.useExactPi ? 3.14 : Math.PI;
+
+            // Compute deductions per segment
+            const deductions = state.segments.map(() => 0);
+            const warnings = [];
+
+            if (state.deductMode !== 'none') {
+                state.corners.forEach((c, i) => {
+                    if (c.isCurved && c.radius > 0) {
+                        const dVal = getCornerDeductAmount(c);
+                        const applyBefore = state.deductMode === 'both' ? true : !!c.deductBefore;
+                        const applyAfter  = state.deductMode === 'both' ? true : !!c.deductAfter;
+
+                        if (applyBefore && i < deductions.length) {
+                            deductions[i] += dVal;
+                        }
+                        if (applyAfter && i + 1 < deductions.length) {
+                            deductions[i + 1] += dVal;
+                        }
+                    }
+                });
+            }
+
             let cursor = 0;
             let cursorAlt = 0;
-            const altPi = state.useExactPi ? 3.14 : Math.PI;
             const items = [];
+            const effectiveSegments = [];
 
-            state.segments.forEach((len, i) => {
+            state.segments.forEach((rawLen, i) => {
+                const deduct = deductions[i];
+                const unclamped = rawLen - deduct;
+                const effLen = Math.max(0, unclamped);
+                effectiveSegments.push(effLen);
+
+                if (deduct > 0 && unclamped < 0) {
+                    warnings.push(`ضلع ${i + 1} (${rawLen} سم) از مقدار کسر شعاع (${fmt(deduct)} سم) کوچکتر است و طول صاف آن ۰ لحاظ شد.`);
+                }
+
                 const start = cursor;
-                const end = cursor + len;
+                const end = cursor + effLen;
                 cursor = end;
-                cursorAlt += len;
+                cursorAlt += effLen;
 
                 items.push({
                     type: 'straight',
                     index: i,
                     title: `ضلع ${i + 1}`,
-                    len,
+                    rawLen,
+                    deduct,
+                    len: effLen,
+                    clamped: unclamped < 0,
                     start,
                     end
                 });
@@ -512,33 +668,46 @@
                 }
             });
 
-            return { items, total: cursor, totalAlt: cursorAlt };
+            return { items, total: cursor, totalAlt: cursorAlt, effectiveSegments, deductions, warnings };
         }
 
         function renderChainInputs() {
             const box = document.getElementById('chainList');
+            const calcData = calculate();
             let html = '';
 
             state.segments.forEach((len, i) => {
+                const deduct = calcData.deductions[i];
+                const effLen = calcData.effectiveSegments[i];
+                const hasDeduct = state.deductMode !== 'none' && deduct > 0;
+
                 html += `
-                <div class="liquid-glass rounded-2xl p-3 flex items-center justify-between gap-2">
-                    <div class="flex items-center gap-2">
-                        <span class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-xs flex items-center justify-center">${i + 1}</span>
-                        <span class="text-xs font-extrabold text-white">ضلع ${i + 1} (سانتی‌متر)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <input type="number" step="0.5" min="0" value="${len}"
-                            oninput="updateSegment(${i}, this.value)"
-                            class="w-20 liquid-input rounded-xl py-1.5 px-2 text-sm font-black text-amber-300 text-center font-mono" dir="ltr">
-                        ${state.segments.length > 2 ? `
-                        <button onclick="removeSegment(${i})" class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-300 text-xs flex items-center justify-center">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>` : ''}
+                <div class="liquid-glass rounded-2xl p-3 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-xs flex items-center justify-center">${i + 1}</span>
+                            <div>
+                                <span class="text-xs font-extrabold text-white block">ضلع ${i + 1} (سانتی‌متر)</span>
+                                <span id="segNetBadge-${i}" class="text-[10px] font-mono ${hasDeduct ? 'text-cyan-300' : 'text-white/45'}">
+                                    ${hasDeduct ? `خالص پس از کسر: ${fmt(effLen)} cm (کسر ${fmt(deduct)}-) ` : 'طول صاف خالص'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <input type="number" step="0.5" min="0" value="${len}"
+                                oninput="updateSegment(${i}, this.value)"
+                                class="w-20 liquid-input rounded-xl py-1.5 px-2 text-sm font-black text-amber-300 text-center font-mono" dir="ltr">
+                            ${state.segments.length > 2 ? `
+                            <button onclick="removeSegment(${i})" class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-300 text-xs flex items-center justify-center">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>` : ''}
+                        </div>
                     </div>
                 </div>`;
 
                 if (i < state.corners.length) {
                     const c = state.corners[i];
+                    const dAmt = getCornerDeductAmount(c);
                     html += `
                     <div class="mr-3 rounded-2xl p-2.5 ${c.isCurved ? 'liquid-cyan' : 'liquid-glass opacity-85'}">
                         <div class="flex items-center justify-between">
@@ -558,11 +727,33 @@
                             </div>
                             <div class="flex items-center justify-between bg-slate-950/40 rounded-xl px-2.5 py-1">
                                 <span class="text-[10px] text-cyan-200 font-bold">زاویه:</span>
-                                <input type="number" step="5" min="1" max="360" value="${c.angle}"
+                                <input type="number" step="5" min="1" max="179" value="${c.angle}"
                                     oninput="updateAngle(${i}, this.value)"
                                     class="w-14 bg-transparent text-sm font-black text-white text-left font-mono focus:outline-none" dir="ltr">
                             </div>
-                        </div>` : ''}
+                        </div>
+                        ${state.deductMode === 'custom' ? `
+                        <div class="mt-2 pt-2 border-t border-white/15 space-y-2">
+                            <div class="flex items-center justify-between text-[10px]">
+                                <span class="text-cyan-100 font-bold">کسر شعاع از کدام ضلع؟</span>
+                                <div class="flex gap-1">
+                                    <button onclick="toggleCornerDeductSide(${i}, 'deductBefore')"
+                                        class="px-2 py-0.5 rounded-lg font-bold border ${c.deductBefore ? 'bg-cyan-400 text-slate-950 border-cyan-300' : 'bg-slate-950/50 text-white/50 border-white/10'}">
+                                        ضلع ${i + 1}
+                                    </button>
+                                    <button onclick="toggleCornerDeductSide(${i}, 'deductAfter')"
+                                        class="px-2 py-0.5 rounded-lg font-bold border ${c.deductAfter ? 'bg-cyan-400 text-slate-950 border-cyan-300' : 'bg-slate-950/50 text-white/50 border-white/10'}">
+                                        ضلع ${i + 2}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-950/40 rounded-xl px-2.5 py-1 text-[10px]">
+                                <span class="text-cyan-200">مقدار کسر هر طرف (پیش‌فرض = ${fmt(c.radius)}):</span>
+                                <input type="number" step="0.5" min="0" placeholder="${c.radius}" value="${c.customDeduct !== null ? c.customDeduct : ''}"
+                                    oninput="updateCustomDeductVal(${i}, this.value)"
+                                    class="w-16 bg-transparent text-xs font-black text-amber-300 text-left font-mono focus:outline-none" dir="ltr">
+                            </div>
+                        </div>` : ''}` : ''}
                     </div>`;
                 }
             });
@@ -572,6 +763,30 @@
 
         function renderAll() {
             const data = calculate();
+
+            // Update per-segment net badge dynamically without losing input focus
+            state.segments.forEach((rawLen, i) => {
+                const badgeEl = document.getElementById(`segNetBadge-${i}`);
+                if (badgeEl) {
+                    const deduct = data.deductions[i];
+                    const effLen = data.effectiveSegments[i];
+                    const hasDeduct = state.deductMode !== 'none' && deduct > 0;
+                    badgeEl.className = `text-[10px] font-mono ${hasDeduct ? 'text-cyan-300' : 'text-white/45'}`;
+                    badgeEl.textContent = hasDeduct
+                        ? `خالص پس از کسر: ${fmt(effLen)} cm (${fmt(rawLen)} - ${fmt(deduct)})`
+                        : 'طول صاف خالص';
+                }
+            });
+
+            // Warning box if any segment is smaller than R
+            const warnBox = document.getElementById('deductWarningBox');
+            const warnText = document.getElementById('deductWarningText');
+            if (data.warnings.length > 0) {
+                warnBox.classList.remove('hidden');
+                warnText.innerHTML = data.warnings.join('<br>');
+            } else {
+                warnBox.classList.add('hidden');
+            }
 
             // Header & Tab 1 & Tab 2 Totals
             document.getElementById('islandTotal').textContent = `${fmt(data.total)} cm`;
@@ -588,9 +803,9 @@
             const totalSafe = Math.max(data.total, 0.01);
             const stripBar = document.getElementById('stripBar');
             stripBar.innerHTML = data.items
-                .filter(it => it.type === 'straight' || it.type === 'curve')
+                .filter(it => (it.type === 'straight' && it.len > 0) || it.type === 'curve')
                 .map(it => {
-                    const w = Math.max((it.len / totalSafe) * 100, 6);
+                    const w = Math.max((it.len / totalSafe) * 100, 7);
                     const isCurve = it.type === 'curve';
                     return `
                     <div style="width:${w}%" class="h-full flex flex-col items-center justify-center border-r border-white/20 px-1 ${isCurve ? 'kerf-pattern bg-cyan-950/80 text-cyan-200' : 'bg-amber-500/20 text-amber-200'}">
@@ -603,22 +818,26 @@
             const stepsBox = document.getElementById('tapeStepsList');
             stepsBox.innerHTML = data.items.map(it => {
                 if (it.type === 'straight') {
+                    const deductInfo = it.deduct > 0
+                        ? `<span class="block text-[10px] text-cyan-300 font-mono">ورودی: ${fmt(it.rawLen)} سم − کسر شعاع: ${fmt(it.deduct)} سم = خالص ${fmt(it.len)} سم</span>`
+                        : '';
                     return `
                     <div class="bg-slate-950/45 border border-white/10 rounded-2xl p-2.5 flex items-center justify-between text-xs">
                         <div>
                             <span class="font-extrabold text-amber-300">${it.title}</span>
-                            <span class="text-[11px] text-white/60 mr-1.5">(${fmt(it.len)} سم)</span>
+                            <span class="text-[11px] text-white/75 mr-1.5">(${fmt(it.len)} سم)</span>
+                            ${deductInfo}
                         </div>
-                        <span class="font-mono font-bold text-white bg-white/10 px-2.5 py-1 rounded-xl" dir="ltr">${fmt(it.start)} → ${fmt(it.end)} cm</span>
+                        <span class="font-mono font-bold text-white bg-white/10 px-2.5 py-1 rounded-xl shrink-0" dir="ltr">${fmt(it.start)} → ${fmt(it.end)} cm</span>
                     </div>`;
                 } else if (it.type === 'curve') {
                     return `
                     <div class="liquid-cyan rounded-2xl p-2.5 flex items-center justify-between text-xs">
                         <div>
                             <span class="font-black text-cyan-200">${it.title} (R=${it.radius})</span>
-                            <span class="block text-[10px] text-cyan-100">طول کمان: ${fmt(it.len)} سم</span>
+                            <span class="block text-[10px] text-cyan-100">طول کمان (ناحیه شیارزنی): ${fmt(it.len)} سم</span>
                         </div>
-                        <span class="font-mono font-black text-slate-950 bg-cyan-300 px-2.5 py-1 rounded-xl" dir="ltr">${fmt(it.start)} → ${fmt(it.end)} cm</span>
+                        <span class="font-mono font-black text-slate-950 bg-cyan-300 px-2.5 py-1 rounded-xl shrink-0" dir="ltr">${fmt(it.start)} → ${fmt(it.end)} cm</span>
                     </div>`;
                 } else {
                     return `
@@ -639,10 +858,10 @@
             const shapes = [];
             const pts = [{ x: 0, y: 0 }];
 
-            state.segments.forEach((len, i) => {
+            data.effectiveSegments.forEach((len, i) => {
                 const nx = x + len * Math.cos(dir);
                 const ny = y + len * Math.sin(dir);
-                shapes.push({ type: 'line', x1: x, y1: y, x2: nx, y2: ny, label: `${len}` });
+                shapes.push({ type: 'line', x1: x, y1: y, x2: nx, y2: ny, label: `${fmt(len, len % 1 === 0 ? 0 : 1)}` });
                 x = nx; y = ny;
                 pts.push({ x, y });
 
@@ -763,13 +982,16 @@
 
         function copyReport() {
             const data = calculate();
+            const modeTitle = state.deductMode === 'none' ? 'بدون کسر شعاع' : (state.deductMode === 'both' ? 'کسر خودکار R از دو طرف' : 'کسر سفارشی');
             const lines = [
                 `طول کامل ورق MDF: ${fmt(data.total)} cm (${fmt(data.total * 10, 1)} mm)`,
+                `حالت محاسبه: ${modeTitle}`,
                 `--------------------`
             ];
             data.items.forEach(it => {
                 if (it.type === 'straight') {
-                    lines.push(`${it.title}: ${fmt(it.len)} سم (${fmt(it.start)} تا ${fmt(it.end)})`);
+                    const subNote = it.deduct > 0 ? ` [ورودی ${fmt(it.rawLen)} - کسر ${fmt(it.deduct)}]` : '';
+                    lines.push(`${it.title}: ${fmt(it.len)} سم${subNote} (${fmt(it.start)} تا ${fmt(it.end)})`);
                 } else if (it.type === 'curve') {
                     lines.push(`${it.title} (R=${it.radius}): کمان ${fmt(it.len)} سم (${fmt(it.start)} تا ${fmt(it.end)})`);
                 }
