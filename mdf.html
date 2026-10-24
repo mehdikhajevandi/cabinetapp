@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>محاسبه‌گر کرو و خم MDF | مهدی خواجه‌وندی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d16 100%);
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px;
+            flex: 1;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.88rem;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-val {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 24px);
+            max-width: 450px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 16px;
+            transition: all 0.2s;
+        }
+
+        .nav-item svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.12);
+        }
+
+        .footer-credit {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-credit a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>محاسبه‌گر کرو و خم MDF</h1>
+        <div class="subtitle">محاسبه دقیق طول ورق، نقشه متر و شیارزنی</div>
+
+        <!-- TAB 1: Inputs -->
+        <div id="tab-1" class="tab-content active">
+            <div class="glass-card">
+                <div class="input-group">
+                    <label>طول اضلاع (به سانتی‌متر با کاما جدا کنید)</label>
+                    <input type="text" id="sidesInput" value="2, 5, 14, 3" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>محل کرو (بعد از ضلع شماره...)</label>
+                    <input type="number" id="curveIndex" value="2" min="1" max="10" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>شعاع کرو (R)</label>
+                    <input type="number" id="radiusInput" value="17" step="0.5" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>ضخامت ورق MDF (میلی‌متر جهت شیار)</label>
+                    <input type="number" id="thickInput" value="16" oninput="calculate()">
+                </div>
+
+                <!-- تنظیم کسر اتوماتیک شعاع -->
+                <div class="checkbox-group" onclick="toggleSubRadius()">
+                    <input type="checkbox" id="autoSubRadius" checked onchange="calculate()">
+                    <label for="autoSubRadius">کاهش اتوماتیک شعاع از اضلاع متصل به کرو</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Results & Meter -->
+        <div id="tab-2" class="tab-content">
+            <div class="glass-card">
+                <h3 style="font-size:0.95rem; color:var(--accent); margin-bottom:12px;">نتایج کلیدی</h3>
+                <div class="result-row">
+                    <span>طول کل ورق صاف:</span>
+                    <span class="result-val" id="resTotalLen">0 cm</span>
+                </div>
+                <div class="result-row">
+                    <span>طول بخش منحنی (کمان):</span>
+                    <span class="result-val" id="resArcLen">0 cm</span>
+                </div>
+                <div class="result-row">
+                    <span>تعداد شیارهای پشت ورق:</span>
+                    <span class="result-val" id="resSlotsCount">0 عدد</span>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3 style="font-size:0.95rem; color:var(--accent); margin-bottom:12px;">راهنمای علامت‌گذاری با متر (از صفر)</h3>
+                <div id="meterGuide" style="font-size: 0.82rem; line-height: 1.8; color: var(--text-muted);">
+                    <!-- Dynamic filled -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Visual & Cross section -->
+        <div id="tab-3" class="tab-content">
+            <div class="glass-card" style="text-align: center;">
+                <h3 style="font-size:0.95rem; color:var(--accent); margin-bottom:12px;">شماتیک مقطع ستون</h3>
+                <div style="padding: 20px; background: rgba(0,0,0,0.3); border-radius: 14px; font-family: monospace; font-size: 0.85rem;" id="asciiPreview">
+                    [پیش‌نمایش مقطع]
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Slotting Details -->
+        <div id="tab-4" class="tab-content">
+            <div class="glass-card">
+                <h3 style="font-size:0.95rem; color:var(--accent); margin-bottom:12px;">اطلاعات فنی شیارزنی (Kerfing)</h3>
+                <div class="result-row">
+                    <span>فاصله مرکز تا مرکز شیارها:</span>
+                    <span class="result-val" id="resSlotSpacing">0 mm</span>
+                </div>
+                <div class="result-row">
+                    <span>عمق پیشنهادی تیغ فرز:</span>
+                    <span class="result-val" id="resSlotDepth">13 mm</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Credits -->
+        <div class="footer-credit">
+            تمامی حقوق متعلق به مهدی خواجه‌وندی | <a href="https://instagram.com/cabinet_21" target="_blank">@cabinet_21</a>
+        </div>
+    </div>
+
+    <!-- Bottom Nav Bar -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab(1, this)">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            محاسبه
+        </button>
+        <button class="nav-item" onclick="switchTab(2, this)">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            مترکشی
+        </button>
+        <button class="nav-item" onclick="switchTab(3, this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.03-.42 1.98-1.03 2.75z"/></svg>
+            مقطع
+        </button>
+        <button class="nav-item" onclick="switchTab(4, this)">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            شیارزنی
+        </button>
+    </div>
+
+    <script>
+        function switchTab(tabNum, btnElement) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabNum).classList.add('active');
+            btnElement.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleSubRadius() {
+            const cb = document.getElementById('autoSubRadius');
+            cb.checked = !cb.checked;
+            calculate();
+        }
+
+        function calculate() {
+            let rawSides = document.getElementById('sidesInput').value.split(',').map(s => parseFloat(s.trim()) || 0);
+            const curveIdx = parseInt(document.getElementById('curveIndex').value) - 1;
+            const R = parseFloat(document.getElementById('radiusInput').value) || 0;
+            const thickness = parseFloat(document.getElementById('thickInput').value) || 16;
+            const autoSub = document.getElementById('autoSubRadius').checked;
+
+            const pi = Math.PI;
+            const arcLen = (pi * R * 90) / 180; // ربع دایره 90 درجه
+
+            // اعمال کسر اتوماتیک شعاع از اضلاع قبل و بعد از کرو
+            let adjustedSides = [...rawSides];
+            if (autoSub && rawSides.length > 0) {
+                // ضلع قبل از کرو (ایندکس curveIdx)
+                if (curveIdx >= 0 && curveIdx < adjustedSides.length) {
+                    adjustedSides[curveIdx] = Math.max(0, rawSides[curveIdx] - R);
+                }
+                // ضلع بعد از کرو (ایندکس curveIdx + 1)
+                let nextIdx = curveIdx + 1;
+                if (nextIdx < adjustedSides.length) {
+                    adjustedSides[nextIdx] = Math.max(0, rawSides[nextIdx] - R);
+                }
+            }
+
+            let totalStraight = adjustedSides.reduce((a, b) => a + b, 0);
+            let totalLen = totalStraight + arcLen;
+
+            // Update results
+            document.getElementById('resTotalLen').innerText = totalLen.toFixed(2) + ' cm';
+            document.getElementById('resArcLen').innerText = arcLen.toFixed(2) + ' cm';
+
+            // Meter guide generation
+            let guideHTML = '';
+            let currentDist = 0;
+            
+            adjustedSides.forEach((side, idx) => {
+                let start = currentDist;
+                let end = currentDist + side;
+                let origText = autoSub && (idx === curveIdx || idx === curveIdx + 1) ? ` <span style="text-decoration:line-through; font-size:0.75rem;">${rawSides[idx]}</span>` : '';
+                
+                guideHTML += `• از <b>${start.toFixed(1)}</b> تا <b>${end.toFixed(1)} سانتی‌متر</b>: ضلع ${idx + 1} (${side} سانت${origText})<br>`;
+                currentDist = end;
+
+                if (idx === curveIdx) {
+                    let arcStart = currentDist;
+                    let arcEnd = currentDist + arcLen;
+                    guideHTML += `<span style="color:var(--accent);">⭐ از <b>${arcStart.toFixed(2)}</b> تا <b>${arcEnd.toFixed(2)} سانتی‌متر</b>: ناحیه کرو با شعاع ${R} (شیارزنی)</span><br>`;
+                    currentDist = arcEnd;
+                }
+            });
+            document.getElementById('meterGuide').innerHTML = guideHTML;
+
+            // Slotting calculations
+            let arcLenMm = arcLen * 10;
+            let slotsCount = Math.max(4, Math.round(arcLenMm / (thickness * 1.2)));
+            let slotSpacing = arcLenMm / slotsCount;
+
+            document.getElementById('resSlotsCount').innerText = slotsCount + ' عدد';
+            document.getElementById('resSlotSpacing').innerText = slotSpacing.toFixed(1) + ' mm';
+
+            // ASCII Preview
+            let asciiText = `مجموع اضلاع برش: ${totalStraight.toFixed(1)} cm\nکمان کرو: ${arcLen.toFixed(1)} cm\nطول نهایی ورق: ${totalLen.toFixed(1)} cm`;
+            document.getElementById('asciiPreview').innerText = asciiText;
+        }
+
+        // Run on load
+        calculate();
+    </script>
+</body>
+</html>
