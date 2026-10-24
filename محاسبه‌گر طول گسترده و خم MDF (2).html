@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="کرو و خم MDF">
+    <meta name="application-name" content="کرو و خم MDF">
+    <meta name="theme-color" content="#070b19">
+    <title>محاسبه‌گر کرو و خم MDF</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #050814;
+            color: #f8fafc;
+            overflow-x: hidden;
+            min-height: 100dvh;
+            user-select: none;
+        }
+
+        /* Ambient Liquid Wallpaper */
+        .liquid-wallpaper {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 0%, #0f172a 0%, #030611 100%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.55;
+            animation: floatOrb 16s infinite ease-in-out alternate;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #06b6d4, #0284c7);
+            top: -8%;
+            right: -10%;
+        }
+
+        .orb-2 {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #f59e0b, #ea580c);
+            bottom: 10%;
+            left: -12%;
+            animation-delay: -6s;
+            opacity: 0.4;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-20px, 25px) scale(1.1); }
+        }
+
+        /* iOS Liquid Glass Surfaces */
+        .liquid-glass {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+            backdrop-filter: blur(26px) saturate(180%);
+            -webkit-backdrop-filter: blur(26px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow:
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
+                0 10px 28px -8px rgba(0, 0, 0, 0.45);
+        }
+
+        .liquid-glass-pill {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.72) 0%, rgba(15, 23, 42, 0.85) 100%);
+            backdrop-filter: blur(32px) saturate(200%);
+            -webkit-backdrop-filter: blur(32px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow:
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.35),
+                0 16px 36px -6px rgba(0, 0, 0, 0.65);
+        }
+
+        .liquid-cyan {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(14, 116, 144, 0.08) 100%);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(34, 211, 238, 0.38);
+            box-shadow: inset 0 1px 1px 0 rgba(165, 243, 252, 0.35);
+        }
+
+        .liquid-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: border-color 0.2s;
+        }
+
+        .liquid-input:focus {
+            border-color: #22d3ee;
+            outline: none;
+        }
+
+        .liquid-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.12s ease;
+        }
+
+        .liquid-btn:active {
+            transform: scale(0.94);
+        }
+
+        .kerf-pattern {
+            background-image: repeating-linear-gradient(
+                90deg,
+                rgba(34, 211, 238, 0.32) 0px,
+                rgba(34, 211, 238, 0.32) 3px,
+                rgba(15, 23, 42, 0.5) 3px,
+                rgba(15, 23, 42, 0.5) 7px
+            );
+        }
+
+        .app-page {
+            display: none;
+            animation: fadeIn 0.22s ease-out;
+        }
+
+        .app-page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        ::-webkit-scrollbar { width: 0; height: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- Background Wallpaper -->
+    <div class="liquid-wallpaper">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Main Mobile Container -->
+    <div class="relative z-10 max-w-[440px] mx-auto min-h-[100dvh] flex flex-col justify-between pb-28">
+
+        <div>
+            <!-- Minimalist iOS Header with Dynamic Island -->
+            <header class="sticky top-0 z-30 pt-3 pb-3 px-4 bg-slate-950/40 backdrop-blur-2xl border-b border-white/10">
+                <!-- Dynamic Island -->
+                <div class="flex justify-center mb-3">
+                    <button onclick="copyReport()" class="bg-black/95 border border-white/20 rounded-full px-4 py-1.5 flex items-center gap-2.5 shadow-lg active:scale-95 transition">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span id="islandTotal" class="text-xs font-mono font-black text-cyan-300" dir="ltr">50.70 cm</span>
+                        <span class="text-[10px] text-white/70 border-r border-white/15 pr-2 flex items-center gap-1">
+                            <i class="fa-regular fa-copy text-amber-300"></i>
+                            <span>کپی</span>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Clean Title & Pi Toggle -->
+                <div class="flex items-center justify-between">
+                    <h1 class="text-sm font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bezier-curve text-cyan-400"></i>
+                        <span>محاسبه‌گر کرو و خم MDF</span>
+                    </h1>
+                    <button onclick="togglePiMode()" id="piToggleBtn" class="px-3 py-1 rounded-full liquid-btn text-[11px] font-mono font-bold text-cyan-300">
+                        π دقیق
+                    </button>
+                </div>
+            </header>
+
+            <!-- Toast Banner -->
+            <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 transform -translate-y-24 opacity-0 transition-all duration-300 pointer-events-none liquid-glass-pill px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold text-white border border-emerald-400/40">
+                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                <span id="toastText">کپی شد!</span>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- PAGES CONTENT                              -->
+            <!-- ========================================== -->
+            <main id="swipeArea" class="px-4 pt-4">
+
+                <!-- TAB 1: اضلاع (Segments & Curves) -->
+                <section id="page-segments" class="app-page active space-y-3">
+                    <!-- Quick Summary Bar -->
+                    <div class="liquid-cyan rounded-2xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-[11px] text-cyan-100 block">طول کامل ورق صاف:</span>
+                            <div class="flex items-baseline gap-1.5" dir="ltr">
+                                <span id="tab1TotalCm" class="text-2xl font-black font-mono text-white">50.70</span>
+                                <span class="text-xs font-bold text-cyan-300">cm</span>
+                                <span id="tab1TotalMm" class="text-xs font-mono text-amber-300 ml-1">(507.0 mm)</span>
+                            </div>
+                        </div>
+                        <button onclick="resetDefaultColumn()" class="px-3 py-1.5 rounded-xl liquid-btn text-[11px] font-bold text-amber-300">
+                            مثال پیش‌فرض
+                        </button>
+                    </div>
+
+                    <!-- Segments & Corners List -->
+                    <div id="chainList" class="space-y-2.5"></div>
+
+                    <!-- Add Segment Button -->
+                    <button onclick="addSegment()" class="w-full py-3 rounded-2xl liquid-glass border-dashed border-cyan-400/40 text-cyan-300 font-extrabold text-xs flex items-center justify-center gap-2 active:scale-98 transition">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>افزودن ضلع جدید</span>
+                    </button>
+                </section>
+
+                <!-- TAB 2: نقشه متر (Tape Measure & Flat Strip) -->
+                <section id="page-sheet" class="app-page space-y-3.5">
+                    <!-- Main Total Length Display -->
+                    <div class="liquid-cyan rounded-3xl p-4 text-center space-y-1">
+                        <span class="text-xs text-cyan-100 font-bold">طول کامل ورق قبل از خم</span>
+                        <div class="text-3xl font-black font-mono text-white" dir="ltr">
+                            <span id="tab2TotalCm">50.70</span> <span class="text-base text-cyan-300">cm</span>
+                        </div>
+                        <div class="flex items-center justify-center gap-4 text-xs font-mono text-white/80 pt-1" dir="ltr">
+                            <span id="tab2TotalMm" class="text-amber-300 font-bold">507.0 mm</span>
+                            <span>|</span>
+                            <span id="tab2TotalAlt">با 3.14: 50.69 cm</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Flat Strip Bar -->
+                    <div class="liquid-glass rounded-3xl p-3.5 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-white/90">
+                            <span>نوار گسترده ورق صاف</span>
+                            <span class="text-[10px] font-mono text-cyan-300" id="stripRangeLabel" dir="ltr">0 → 50.70 cm</span>
+                        </div>
+                        <div class="overflow-x-auto pb-1" dir="ltr">
+                            <div id="stripBar" class="min-w-[340px] h-14 rounded-2xl overflow-hidden flex border border-white/20 bg-slate-900/90"></div>
+                        </div>
+                    </div>
+
+                    <!-- Cumulative Step-by-Step Tape Markings -->
+                    <div class="liquid-glass rounded-3xl p-3.5 space-y-2">
+                        <div class="text-xs font-extrabold text-white mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-ruler-horizontal text-amber-300"></i>
+                            <span>علامت‌گذاری با متر از ابتدای ورق (۰):</span>
+                        </div>
+                        <div id="tapeStepsList" class="space-y-2"></div>
+                    </div>
+                </section>
+
+                <!-- TAB 3: نمای مقطع (2D Profile Drawing) -->
+                <section id="page-preview" class="app-page space-y-3.5">
+                    <div class="liquid-glass rounded-3xl p-3">
+                        <div class="flex items-center justify-between mb-2 px-1">
+                            <span class="text-xs font-extrabold text-white">شماتیک مقطع ستون</span>
+                            <span class="text-[10px] text-cyan-300">نقطه سبز = شروع ضلع ۱</span>
+                        </div>
+                        <div class="bg-slate-950/70 rounded-2xl border border-white/10 flex items-center justify-center h-[300px]">
+                            <svg id="profileSvg" class="w-full h-full" viewBox="0 0 420 300" preserveAspectRatio="xMidYMid meet"></svg>
+                        </div>
+                    </div>
+
+                    <!-- Simple Bend Direction Flippers -->
+                    <div class="liquid-glass rounded-3xl p-3.5 space-y-2">
+                        <div class="text-xs font-extrabold text-white mb-1">جهت شکستگی‌ها:</div>
+                        <div id="turnControlsList" class="space-y-2"></div>
+                    </div>
+                </section>
+
+                <!-- TAB 4: شیارزنی (Kerfing Calculator) -->
+                <section id="page-kerf" class="app-page space-y-3.5">
+                    <div class="liquid-glass rounded-3xl p-4 space-y-3">
+                        <div class="text-xs font-extrabold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-compact-disc text-cyan-300"></i>
+                            <span>تنظیمات شیارزنی پشت ورق (میلی‌متر)</span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2.5 text-center">
+                            <div class="bg-slate-950/50 rounded-2xl p-2.5 border border-white/10">
+                                <label class="block text-[10px] text-white/70 mb-1">ضخامت ورق</label>
+                                <input type="number" id="kerfThickness" value="16" step="1" min="3" oninput="renderAll()"
+                                    class="w-full liquid-input rounded-xl py-1.5 text-sm font-black text-white text-center font-mono" dir="ltr">
+                            </div>
+                            <div class="bg-slate-950/50 rounded-2xl p-2.5 border border-white/10">
+                                <label class="block text-[10px] text-white/70 mb-1">پوسته باقی‌مانده</label>
+                                <input type="number" id="kerfSkin" value="2" step="0.5" min="0.5" oninput="renderAll()"
+                                    class="w-full liquid-input rounded-xl py-1.5 text-sm font-black text-amber-300 text-center font-mono" dir="ltr">
+                            </div>
+                            <div class="bg-slate-950/50 rounded-2xl p-2.5 border border-white/10">
+                                <label class="block text-[10px] text-white/70 mb-1">ضخامت تیغ اره</label>
+                                <input type="number" id="kerfBlade" value="3" step="0.1" min="1" oninput="renderAll()"
+                                    class="w-full liquid-input rounded-xl py-1.5 text-sm font-black text-cyan-300 text-center font-mono" dir="ltr">
+                            </div>
+                        </div>
+
+                        <div id="kerfResultsList" class="space-y-2.5 pt-1"></div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SINGLE CLEAN MINIMAL FOOTER WITH INSTAGRAM -->
+        <!-- ========================================== -->
+        <footer class="px-4 mt-6 mb-2">
+            <div class="liquid-glass rounded-2xl py-2.5 px-4 text-center text-xs font-bold text-white/85 flex items-center justify-center gap-1.5 flex-wrap">
+                <span>تمامی حقوق متعلق به مهدی خواجه‌وندی</span>
+                <span class="text-white/30">|</span>
+                <a href="https://instagram.com/cabinet.21" target="_blank" rel="noopener noreferrer"
+                   class="text-cyan-300 hover:text-cyan-200 font-mono font-extrabold inline-flex items-center gap-1" dir="ltr">
+                    <i class="fa-brands fa-instagram text-pink-400"></i>
+                    <span>@cabinet.21</span>
+                </a>
+            </div>
+        </footer>
+
+        <!-- ========================================== -->
+        <!-- FLOATING LIQUID GLASS 4-TAB BOTTOM BAR     -->
+        <!-- ========================================== -->
+        <nav class="fixed bottom-3 inset-x-0 z-40 px-4 pointer-events-none">
+            <div class="max-w-[410px] mx-auto liquid-glass-pill rounded-full p-1.5 grid grid-cols-4 gap-1 pointer-events-auto">
+                <button onclick="switchTab('segments')" id="tabBtn-segments"
+                    class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-cyan-300 bg-white/15 font-extrabold transition">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                    <span class="text-[10px]">اضلاع</span>
+                </button>
+                <button onclick="switchTab('sheet')" id="tabBtn-sheet"
+                    class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition">
+                    <i class="fa-solid fa-ruler-horizontal text-sm"></i>
+                    <span class="text-[10px]">نقشه متر</span>
+                </button>
+                <button onclick="switchTab('preview')" id="tabBtn-preview"
+                    class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition">
+                    <i class="fa-solid fa-compass-drafting text-sm"></i>
+                    <span class="text-[10px]">نمای مقطع</span>
+                </button>
+                <button onclick="switchTab('kerf')" id="tabBtn-kerf"
+                    class="py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition">
+                    <i class="fa-solid fa-compact-disc text-sm"></i>
+                    <span class="text-[10px]">شیارزنی</span>
+                </button>
+            </div>
+        </nav>
+
+    </div>
+
+    <script>
+        const TABS = ['segments', 'sheet', 'preview', 'kerf'];
+
+        let state = {
+            activeTab: 'segments',
+            useExactPi: true,
+            segments: [2, 5, 14, 3],
+            corners: [
+                { isCurved: false, radius: 10, angle: 90, dir: 'left' },
+                { isCurved: true,  radius: 17, angle: 90, dir: 'right' },
+                { isCurved: false, radius: 10, angle: 90, dir: 'left' }
+            ]
+        };
+
+        function fmt(n, d = 2) {
+            return Number(n || 0).toFixed(d);
+        }
+
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            TABS.forEach(id => {
+                const page = document.getElementById(`page-${id}`);
+                const btn = document.getElementById(`tabBtn-${id}`);
+                if (id === tabId) {
+                    page.classList.add('active');
+                    btn.className = 'py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-cyan-300 bg-white/15 font-extrabold transition shadow';
+                } else {
+                    page.classList.remove('active');
+                    btn.className = 'py-2 rounded-full flex flex-col items-center justify-center gap-0.5 text-white/60 font-bold transition';
+                }
+            });
+            renderAll();
+        }
+
+        function togglePiMode() {
+            state.useExactPi = !state.useExactPi;
+            document.getElementById('piToggleBtn').textContent = state.useExactPi ? 'π دقیق' : 'π = 3.14';
+            renderChainInputs();
+            renderAll();
+        }
+
+        function resetDefaultColumn() {
+            state.segments = [2, 5, 14, 3];
+            state.corners = [
+                { isCurved: false, radius: 10, angle: 90, dir: 'left' },
+                { isCurved: true,  radius: 17, angle: 90, dir: 'right' },
+                { isCurved: false, radius: 10, angle: 90, dir: 'left' }
+            ];
+            renderChainInputs();
+            renderAll();
+            showToast('مثال ستون (۲، ۵، کرو ۱۷، ۱۴، ۳) بارگذاری شد');
+        }
+
+        function addSegment() {
+            state.segments.push(10);
+            state.corners.push({
+                isCurved: false,
+                radius: 17,
+                angle: 90,
+                dir: state.corners.length % 2 === 0 ? 'left' : 'right'
+            });
+            renderChainInputs();
+            renderAll();
+        }
+
+        function removeSegment(idx) {
+            if (state.segments.length <= 2) return;
+            state.segments.splice(idx, 1);
+            state.corners.splice(Math.min(idx, state.corners.length - 1), 1);
+            renderChainInputs();
+            renderAll();
+        }
+
+        function updateSegment(idx, val) {
+            state.segments[idx] = Math.max(0, parseFloat(val) || 0);
+            renderAll();
+        }
+
+        function toggleCurve(cIdx, curved) {
+            state.corners[cIdx].isCurved = curved;
+            renderChainInputs();
+            renderAll();
+        }
+
+        function updateRadius(cIdx, val) {
+            state.corners[cIdx].radius = Math.max(0, parseFloat(val) || 0);
+            renderAll();
+        }
+
+        function updateAngle(cIdx, val) {
+            state.corners[cIdx].angle = Math.min(360, Math.max(1, parseFloat(val) || 90));
+            renderAll();
+        }
+
+        function flipCornerDir(cIdx) {
+            state.corners[cIdx].dir = state.corners[cIdx].dir === 'right' ? 'left' : 'right';
+            renderAll();
+        }
+
+        function calculate() {
+            const piVal = state.useExactPi ? Math.PI : 3.14;
+            let cursor = 0;
+            let cursorAlt = 0;
+            const altPi = state.useExactPi ? 3.14 : Math.PI;
+            const items = [];
+
+            state.segments.forEach((len, i) => {
+                const start = cursor;
+                const end = cursor + len;
+                cursor = end;
+                cursorAlt += len;
+
+                items.push({
+                    type: 'straight',
+                    index: i,
+                    title: `ضلع ${i + 1}`,
+                    len,
+                    start,
+                    end
+                });
+
+                if (i < state.corners.length) {
+                    const c = state.corners[i];
+                    if (c.isCurved && c.radius > 0) {
+                        const arc = (c.angle / 360) * 2 * piVal * c.radius;
+                        const arcAlt = (c.angle / 360) * 2 * altPi * c.radius;
+                        const cStart = cursor;
+                        const cEnd = cursor + arc;
+                        cursor = cEnd;
+                        cursorAlt += arcAlt;
+
+                        items.push({
+                            type: 'curve',
+                            index: i,
+                            title: `کرو بین ضلع ${i + 1} و ${i + 2}`,
+                            radius: c.radius,
+                            angle: c.angle,
+                            len: arc,
+                            start: cStart,
+                            end: cEnd
+                        });
+                    } else {
+                        items.push({
+                            type: 'fold',
+                            index: i,
+                            title: `شکست بین ضلع ${i + 1} و ${i + 2}`,
+                            at: cursor
+                        });
+                    }
+                }
+            });
+
+            return { items, total: cursor, totalAlt: cursorAlt };
+        }
+
+        function renderChainInputs() {
+            const box = document.getElementById('chainList');
+            let html = '';
+
+            state.segments.forEach((len, i) => {
+                html += `
+                <div class="liquid-glass rounded-2xl p-3 flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-300 font-black text-xs flex items-center justify-center">${i + 1}</span>
+                        <span class="text-xs font-extrabold text-white">ضلع ${i + 1} (سانتی‌متر)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" step="0.5" min="0" value="${len}"
+                            oninput="updateSegment(${i}, this.value)"
+                            class="w-20 liquid-input rounded-xl py-1.5 px-2 text-sm font-black text-amber-300 text-center font-mono" dir="ltr">
+                        ${state.segments.length > 2 ? `
+                        <button onclick="removeSegment(${i})" class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-300 text-xs flex items-center justify-center">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>` : ''}
+                    </div>
+                </div>`;
+
+                if (i < state.corners.length) {
+                    const c = state.corners[i];
+                    html += `
+                    <div class="mr-3 rounded-2xl p-2.5 ${c.isCurved ? 'liquid-cyan' : 'liquid-glass opacity-85'}">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold text-white/90">بین ضلع ${i + 1} و ${i + 2}</span>
+                            <div class="bg-slate-950/60 p-0.5 rounded-full border border-white/15 flex text-[10px] font-extrabold">
+                                <button onclick="toggleCurve(${i}, false)" class="px-2.5 py-0.5 rounded-full ${!c.isCurved ? 'bg-white/20 text-white' : 'text-white/50'}">تیز</button>
+                                <button onclick="toggleCurve(${i}, true)" class="px-2.5 py-0.5 rounded-full ${c.isCurved ? 'bg-cyan-400 text-slate-950 font-black' : 'text-white/50'}">کرو</button>
+                            </div>
+                        </div>
+                        ${c.isCurved ? `
+                        <div class="grid grid-cols-2 gap-2 mt-2.5 pt-2 border-t border-white/15">
+                            <div class="flex items-center justify-between bg-slate-950/40 rounded-xl px-2.5 py-1">
+                                <span class="text-[10px] text-cyan-200 font-bold">شعاع (R):</span>
+                                <input type="number" step="0.5" min="0.5" value="${c.radius}"
+                                    oninput="updateRadius(${i}, this.value)"
+                                    class="w-14 bg-transparent text-sm font-black text-cyan-300 text-left font-mono focus:outline-none" dir="ltr">
+                            </div>
+                            <div class="flex items-center justify-between bg-slate-950/40 rounded-xl px-2.5 py-1">
+                                <span class="text-[10px] text-cyan-200 font-bold">زاویه:</span>
+                                <input type="number" step="5" min="1" max="360" value="${c.angle}"
+                                    oninput="updateAngle(${i}, this.value)"
+                                    class="w-14 bg-transparent text-sm font-black text-white text-left font-mono focus:outline-none" dir="ltr">
+                            </div>
+                        </div>` : ''}
+                    </div>`;
+                }
+            });
+
+            box.innerHTML = html;
+        }
+
+        function renderAll() {
+            const data = calculate();
+
+            // Header & Tab 1 & Tab 2 Totals
+            document.getElementById('islandTotal').textContent = `${fmt(data.total)} cm`;
+            document.getElementById('tab1TotalCm').textContent = fmt(data.total);
+            document.getElementById('tab1TotalMm').textContent = `(${fmt(data.total * 10, 1)} mm)`;
+            document.getElementById('tab2TotalCm').textContent = fmt(data.total);
+            document.getElementById('tab2TotalMm').textContent = `${fmt(data.total * 10, 1)} mm`;
+            document.getElementById('tab2TotalAlt').textContent = state.useExactPi
+                ? `با 3.14: ${fmt(data.totalAlt)} cm`
+                : `با π دقیق: ${fmt(data.totalAlt)} cm`;
+            document.getElementById('stripRangeLabel').textContent = `0 → ${fmt(data.total)} cm`;
+
+            // Visual Flat Strip
+            const totalSafe = Math.max(data.total, 0.01);
+            const stripBar = document.getElementById('stripBar');
+            stripBar.innerHTML = data.items
+                .filter(it => it.type === 'straight' || it.type === 'curve')
+                .map(it => {
+                    const w = Math.max((it.len / totalSafe) * 100, 6);
+                    const isCurve = it.type === 'curve';
+                    return `
+                    <div style="width:${w}%" class="h-full flex flex-col items-center justify-center border-r border-white/20 px-1 ${isCurve ? 'kerf-pattern bg-cyan-950/80 text-cyan-200' : 'bg-amber-500/20 text-amber-200'}">
+                        <span class="text-[9px] font-bold truncate max-w-full" dir="rtl">${isCurve ? `R=${it.radius}` : it.title}</span>
+                        <span class="text-[11px] font-mono font-black text-white">${fmt(it.len)}</span>
+                    </div>`;
+                }).join('');
+
+            // Tape Measure Steps
+            const stepsBox = document.getElementById('tapeStepsList');
+            stepsBox.innerHTML = data.items.map(it => {
+                if (it.type === 'straight') {
+                    return `
+                    <div class="bg-slate-950/45 border border-white/10 rounded-2xl p-2.5 flex items-center justify-between text-xs">
+                        <div>
+                            <span class="font-extrabold text-amber-300">${it.title}</span>
+                            <span class="text-[11px] text-white/60 mr-1.5">(${fmt(it.len)} سم)</span>
+                        </div>
+                        <span class="font-mono font-bold text-white bg-white/10 px-2.5 py-1 rounded-xl" dir="ltr">${fmt(it.start)} → ${fmt(it.end)} cm</span>
+                    </div>`;
+                } else if (it.type === 'curve') {
+                    return `
+                    <div class="liquid-cyan rounded-2xl p-2.5 flex items-center justify-between text-xs">
+                        <div>
+                            <span class="font-black text-cyan-200">${it.title} (R=${it.radius})</span>
+                            <span class="block text-[10px] text-cyan-100">طول کمان: ${fmt(it.len)} سم</span>
+                        </div>
+                        <span class="font-mono font-black text-slate-950 bg-cyan-300 px-2.5 py-1 rounded-xl" dir="ltr">${fmt(it.start)} → ${fmt(it.end)} cm</span>
+                    </div>`;
+                } else {
+                    return `
+                    <div class="px-3 py-1 flex items-center justify-between text-[11px] text-white/60">
+                        <span>خط شکست (${it.title})</span>
+                        <span class="font-mono text-amber-300" dir="ltr">${fmt(it.at)} cm</span>
+                    </div>`;
+                }
+            }).join('');
+
+            render2DProfile(data);
+            renderKerfing(data);
+        }
+
+        function render2DProfile(data) {
+            const svg = document.getElementById('profileSvg');
+            let x = 0, y = 0, dir = 0;
+            const shapes = [];
+            const pts = [{ x: 0, y: 0 }];
+
+            state.segments.forEach((len, i) => {
+                const nx = x + len * Math.cos(dir);
+                const ny = y + len * Math.sin(dir);
+                shapes.push({ type: 'line', x1: x, y1: y, x2: nx, y2: ny, label: `${len}` });
+                x = nx; y = ny;
+                pts.push({ x, y });
+
+                if (i < state.corners.length) {
+                    const c = state.corners[i];
+                    const sign = c.dir === 'right' ? 1 : -1;
+                    const ang = (c.angle * Math.PI) / 180;
+
+                    if (c.isCurved && c.radius > 0) {
+                        const r = c.radius;
+                        const cx = x - sign * Math.sin(dir) * r;
+                        const cy = y + sign * Math.cos(dir) * r;
+                        const sAng = Math.atan2(y - cy, x - cx);
+                        const eAng = sAng + sign * ang;
+                        const ex = cx + r * Math.cos(eAng);
+                        const ey = cy + r * Math.sin(eAng);
+
+                        for (let k = 1; k <= 12; k++) {
+                            const a = sAng + (sign * ang * k) / 12;
+                            pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+                        }
+
+                        shapes.push({
+                            type: 'arc',
+                            x1: x, y1: y, x2: ex, y2: ey, r,
+                            sweep: sign > 0 ? 1 : 0,
+                            large: c.angle > 180 ? 1 : 0,
+                            mx: cx + r * Math.cos(sAng + (sign * ang) / 2),
+                            my: cy + r * Math.sin(sAng + (sign * ang) / 2)
+                        });
+                        x = ex; y = ey;
+                    }
+                    dir += sign * ang;
+                }
+            });
+
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            pts.forEach(p => {
+                minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
+            });
+
+            const w = Math.max(maxX - minX, 5);
+            const h = Math.max(maxY - minY, 5);
+            const scale = Math.min(320 / w, 210 / h);
+            const tx = px => 210 + (px - (minX + maxX) / 2) * scale;
+            const ty = py => 150 + (py - (minY + maxY) / 2) * scale;
+
+            let out = '';
+            shapes.forEach(s => {
+                if (s.type === 'line') {
+                    const x1 = tx(s.x1), y1 = ty(s.y1), x2 = tx(s.x2), y2 = ty(s.y2);
+                    out += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fbbf24" stroke-width="5" stroke-linecap="round"/>`;
+                    out += `<text x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 - 8}" fill="#fde68a" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">${s.label}</text>`;
+                } else {
+                    const x1 = tx(s.x1), y1 = ty(s.y1), x2 = tx(s.x2), y2 = ty(s.y2);
+                    const sr = s.r * scale;
+                    out += `<path d="M ${x1} ${y1} A ${sr} ${sr} 0 ${s.large} ${s.sweep} ${x2} ${y2}" fill="none" stroke="#22d3ee" stroke-width="5.5" stroke-linecap="round"/>`;
+                    out += `<text x="${tx(s.mx)}" y="${ty(s.my) - 8}" fill="#67e8f9" font-size="11" font-weight="bold" text-anchor="middle" font-family="monospace">R${s.r}</text>`;
+                }
+            });
+            out += `<circle cx="${tx(0)}" cy="${ty(0)}" r="5.5" fill="#10b981" stroke="#fff" stroke-width="2"/>`;
+            svg.innerHTML = out;
+
+            // Turn controls
+            document.getElementById('turnControlsList').innerHTML = state.corners.map((c, i) => `
+                <div class="bg-slate-950/45 border border-white/10 rounded-2xl p-2.5 flex items-center justify-between text-xs">
+                    <span>بین ضلع ${i + 1} و ${i + 2} ${c.isCurved ? `<b class="text-cyan-300">(کرو R=${c.radius})</b>` : ''}</span>
+                    <button onclick="flipCornerDir(${i})" class="px-3 py-1 rounded-xl liquid-btn text-cyan-300 font-bold text-[11px]">
+                        ${c.dir === 'right' ? 'چرخش به راست' : 'چرخش به چپ'}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderKerfing(data) {
+            const box = document.getElementById('kerfResultsList');
+            const curves = data.items.filter(it => it.type === 'curve');
+
+            if (!curves.length) {
+                box.innerHTML = `<div class="text-xs text-white/60 text-center py-2">هیچ کروی فعال نیست.</div>`;
+                return;
+            }
+
+            const t = parseFloat(document.getElementById('kerfThickness').value) || 16;
+            const skin = parseFloat(document.getElementById('kerfSkin').value) || 2;
+            const blade = parseFloat(document.getElementById('kerfBlade').value) || 3;
+            const depth = Math.max(1, t - skin);
+
+            box.innerHTML = curves.map(c => {
+                const rad = (c.angle * Math.PI) / 180;
+                const cuts = Math.max(3, Math.round((rad * depth) / blade));
+                const stepMm = (c.len * 10) / cuts;
+
+                return `
+                <div class="liquid-cyan rounded-2xl p-3 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-extrabold">
+                        <span class="text-white">${c.title} (R=${c.radius})</span>
+                        <span class="font-mono text-cyan-200" dir="ltr">${fmt(c.len)} cm</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-slate-950/50 rounded-xl p-2">
+                            <span class="block text-[10px] text-white/60">تعداد شیار</span>
+                            <span class="font-mono font-black text-white text-sm">${cuts}</span>
+                        </div>
+                        <div class="bg-slate-950/50 rounded-xl p-2">
+                            <span class="block text-[10px] text-white/60">فاصله شیارها</span>
+                            <span class="font-mono font-black text-cyan-300 text-sm" dir="ltr">${fmt(stepMm, 1)} mm</span>
+                        </div>
+                        <div class="bg-slate-950/50 rounded-xl p-2">
+                            <span class="block text-[10px] text-white/60">عمق برش</span>
+                            <span class="font-mono font-black text-amber-300 text-sm" dir="ltr">${fmt(depth, 1)} mm</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function copyReport() {
+            const data = calculate();
+            const lines = [
+                `طول کامل ورق MDF: ${fmt(data.total)} cm (${fmt(data.total * 10, 1)} mm)`,
+                `--------------------`
+            ];
+            data.items.forEach(it => {
+                if (it.type === 'straight') {
+                    lines.push(`${it.title}: ${fmt(it.len)} سم (${fmt(it.start)} تا ${fmt(it.end)})`);
+                } else if (it.type === 'curve') {
+                    lines.push(`${it.title} (R=${it.radius}): کمان ${fmt(it.len)} سم (${fmt(it.start)} تا ${fmt(it.end)})`);
+                }
+            });
+            lines.push(`--------------------`);
+            lines.push(`مهدی خواجه‌وندی | @cabinet.21`);
+
+            const ta = document.createElement('textarea');
+            ta.value = lines.join('\n');
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('گزارش برش کپی شد!');
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastText').textContent = msg;
+            t.classList.remove('-translate-y-24', 'opacity-0');
+            setTimeout(() => t.classList.add('-translate-y-24', 'opacity-0'), 2200);
+        }
+
+        window.onload = () => {
+            renderChainInputs();
+            renderAll();
+        };
+    </script>
+</body>
+</html>
